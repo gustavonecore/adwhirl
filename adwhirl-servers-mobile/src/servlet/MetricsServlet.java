@@ -78,107 +78,110 @@ public class MetricsServlet extends HttpServlet
     }
 	
     private void doMetrics(HttpServletRequest request, HttpServletResponse response) throws IOException {	
-	int i_hitType;
-		
-	String s_appver = request.getParameter("appver");		
-	int ver;
-	if(s_appver == null || s_appver.isEmpty()) {
-	    ver = 127;
-	}
-	else {
-	    ver = Integer.parseInt(s_appver);		
-	}
-
-	String requestURI = request.getRequestURI();
-	if(requestURI.contains("exclick")) {
-	    i_hitType = AdWhirlUtil.HITTYPE.CLICK.ordinal();
-	}
-	else if(requestURI.contains("exmet")) {
-	    i_hitType = AdWhirlUtil.HITTYPE.IMPRESSION.ordinal();
-	}
-	else {
-	    log.warn("Unable to determine hitType from request: " + requestURI);
-	    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown request URI");
-	    return;
-	}
-
-	String aid = request.getParameter("appid");
-	if(aid == null || aid.isEmpty()) {
-	    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <appid> is required");
-	    return;
-	}	
-	aid = aid.trim();
-		
-	Element element = null;
-
-	HitObject ho = null;
-
-	Cache cache = null;
-	Object key = null;
-
-	int type;
-		
-	//Version 2.* uses NID and TYPE to store metrics, whereas version 1.* uses a composite key of AID and TYPE
-	if(ver >= 200) {
-	    String s_type = request.getParameter("type");
-	    if(s_type == null || s_type.isEmpty()) {
-		response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <type> is required");
-		return;
-	    }			
-	    type = Integer.parseInt(s_type);
-
-	    //The NID variable here is a UUID identifying the network specific to the application
-	    String nid = request.getParameter("nid");
-	    if(nid == null || nid.isEmpty()) {
-		response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <nid> is required");
-		return;
-	    }			
-
-	    cache = hitsCache;
-	    
-	    // Note: The key for the normal hits cache is a HitObjectKey
-	    key = new HitObjectKey(nid, aid);
-	}
-	else {
-	    //Yes, the legacy type variable is also NID. This NID is an int representing the network type 
-	    String s_type = request.getParameter("nid");
-	    if(s_type == null || s_type.isEmpty()) {
-		response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <nid> is required");
-		return;
-	    }	
-	    type = Integer.parseInt(s_type);
-
-	    cache = legacyHitsCache;
-	    
-	    // Note: The key for the legacy hits cache is a string
-	    key = aid + "_" + type;
-	}
-		
-	log.debug("Cache key for request: " + key);
-		
-	element = cache.get(key);
+		int i_hitType;
 			
-	if(element == null) {
-	    //TODO: Depending on traffic, this may need a semaphore or be generated beforehand
-	    ho = new HitObject(type);
-	    element = new Element(key, ho);
-	    cache.put(element);
-	}
-	else {
-	    //We don't need to put again, since the reference didn't change
-	    ho = (HitObject)element.getObjectValue();
-	}
+		String s_appver = request.getParameter("appver");		
+		int ver;
+		if(s_appver == null || s_appver.isEmpty()) {
+		    ver = 127;
+		}
+		else {
+		    ver = Integer.parseInt(s_appver);		
+		}
+	
+		String requestURI = request.getRequestURI();
+		if(requestURI.contains("exclick")) {
+		    i_hitType = AdWhirlUtil.HITTYPE.CLICK.ordinal();
+		}
+		else if(requestURI.contains("exmet")) {
+		    i_hitType = AdWhirlUtil.HITTYPE.IMPRESSION.ordinal();
+		}
+		else {
+		    log.warn("Unable to determine hitType from request: " + requestURI);
+		    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown request URI");
+		    return;
+		}
+	
+		String aid = request.getParameter("appid");
+		if(aid == null || aid.isEmpty()) {
+		    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <appid> is required");
+		    return;
+		}	
+		aid = aid.trim();
 			
-	//Atomically record the hit
-	if(i_hitType == AdWhirlUtil.HITTYPE.IMPRESSION.ordinal()) {
-	    ho.impressions.incrementAndGet();
-	}
-	else {
-	    ho.clicks.incrementAndGet();
-	}
-
-	response.setContentType("text/html");
-	response.setContentLength(0);
-	response.setStatus(HttpServletResponse.SC_OK);
+		Element element = null;
+	
+		HitObject ho = null;
+	
+		Cache cache = null;
+		Object key = null;
+	
+		int type;
+			
+		//Version 2.* uses NID and TYPE to store metrics, whereas version 1.* uses a composite key of AID and TYPE
+		if(ver >= 200) {
+			
+		    String s_type = request.getParameter("type");
+		    
+		    if(s_type == null || s_type.isEmpty()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <type> is required");
+				return;
+		    }			
+		    
+		    type = Integer.parseInt(s_type);
+	
+		    //The NID variable here is a UUID identifying the network specific to the application
+		    String nid = request.getParameter("nid");
+		    if(nid == null || nid.isEmpty()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <nid> is required");
+				return;
+		    }			
+	
+		    cache = hitsCache;
+		    
+		    // Note: The key for the normal hits cache is a HitObjectKey
+		    key = new HitObjectKey(nid, aid);
+		}
+		else {
+		    //Yes, the legacy type variable is also NID. This NID is an int representing the network type 
+		    String s_type = request.getParameter("nid");
+		    if(s_type == null || s_type.isEmpty()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parameter <nid> is required");
+				return;
+		    }	
+		    type = Integer.parseInt(s_type);
+	
+		    cache = legacyHitsCache;
+		    
+		    // Note: The key for the legacy hits cache is a string
+		    key = aid + "_" + type;
+		}
+			
+		log.debug("Cache key for request: " + key);
+			
+		element = cache.get(key);
+				
+		if(element == null) {
+		    //TODO: Depending on traffic, this may need a semaphore or be generated beforehand
+		    ho = new HitObject(type);
+		    element = new Element(key, ho);
+		    cache.put(element);
+		}
+		else {
+		    //We don't need to put again, since the reference didn't change
+		    ho = (HitObject)element.getObjectValue();
+		}
+				
+		//Atomically record the hit
+		if(i_hitType == AdWhirlUtil.HITTYPE.IMPRESSION.ordinal()) {
+		    ho.impressions.incrementAndGet();
+		}
+		else {
+		    ho.clicks.incrementAndGet();
+		}
+	
+		response.setContentType("text/html");
+		response.setContentLength(0);
+		response.setStatus(HttpServletResponse.SC_OK);
     }
 }

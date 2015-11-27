@@ -25,9 +25,7 @@ import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 
 public class AdWhirlUtil {
-        public static final String SERVER =
-            "CHANGEME";
-
+        public static final String SERVER = "";
 
 	public static final String DOMAIN_APP_CUSTOMS = "app_customs";
 	public static final String DOMAIN_APPS = "apps";
@@ -42,12 +40,10 @@ public class AdWhirlUtil {
 	public static final String DOMAIN_USERS_FORGOT = "users_forgot";
 	public static final String DOMAIN_USERS_UNVERIFIED = "users_unverified";
 
-        public static final String myAccessKey =
-            "CHANGEME";
+        public static final String myAccessKey = "CHANGEME";
 
 
-        public static final String mySecretKey =
-            "CHANGEME";
+        public static final String mySecretKey = "CHANGEME";
 
 
 	//Special characters need to be escaped.

@@ -24,8 +24,8 @@ public class HitObject {
     public int type;
 	
     public HitObject(int type) {
-	impressions = new AtomicInteger(0);
-	clicks = new AtomicInteger(0);
-	this.type = type;
+		impressions = new AtomicInteger(0);
+		clicks = new AtomicInteger(0);
+		this.type = type;
     }
 }

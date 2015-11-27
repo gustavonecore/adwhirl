@@ -55,8 +55,6 @@ public class Invoker {
 		CacheUtil.initalize();
 		CacheUtil.preload();
 
-		Server server = new Server(80);
-
 		//import org.mortbay.thread.QueuedThreadPool;
 		/*
 		  QueuedThreadPool threadPool = new QueuedThreadPool();
@@ -66,6 +64,8 @@ public class Invoker {
 		*/
 		
 		try {
+			Server server = new Server(8080);
+			
 			HandlerCollection handlers = new HandlerCollection();
 			ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
 	        Context servletContext = new Context(contextHandlerCollection, "/");

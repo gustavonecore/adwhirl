@@ -109,7 +109,7 @@ public class CustomsServlet extends HttpServlet
 			return;
 		}
 		
-		String metricsRequest = "http://localhost/exmet.php?nid=" + nid + "&appid=" + aid + "&type=9&appver=200";
+		String metricsRequest = "http://CHANGEME/exmet.php?nid=" + nid + "&appid=" + aid + "&type=9&appver=200";
 		new URL(metricsRequest).openStream().close();
 		
 		String key = nid + "_" + appver;
